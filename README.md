@@ -1,32 +1,97 @@
-# 🔐 AVR Rolling Code Digital Lock
-A high-security digital lock system written in **AVR Assembly** for the ATmega328P. This project features a dynamic rolling code algorithm, EEPROM persistence, and a math-based "Deadlock" recovery system.
+# 🔐 AVR Rolling Code Lock - Advanced Assembly Security System
+
+A professional-grade, low-level security system implemented in **AVR Assembly** for the **ATmega328P**. This project moves beyond static passwords by implementing a **Rolling Code algorithm (LFSR)** and a **9's Complement Recovery system**, making it resistant to replay attacks and brute-force attempts.
+
+## 📊 System Logic Flow
+
+This flowchart illustrates the internal state machine of the firmware, from initialization to the secure deadlock recovery.
+
+```mermaid
+graph TD
+    %% Define Styles
+    classDef startEnd fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef process fill:#fff,stroke:#333,stroke-width:1px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef danger fill:#ffcdd2,stroke:#e53935,stroke-width:2px;
+
+    Start((Power On)) --> Init[Initialize Ports, LCD & EEPROM]
+    Init --> Standby[STATE_STANDBY: Display Blank]
+    
+    Standby --> KeyHash{User presses #?}
+    KeyHash -- No --> Standby
+    KeyHash -- Yes --> DisplayCode[LCD: 'CODE:' & Display Current Rolling Code]
+
+    DisplayCode --> Input[GET_INPUT_STRING: User enters 4 digits]
+    Input --> Validate{Validate Rolling Code}
+
+    Validate -- Match --> Unlock[UNLOCK_SYSTEM: Solenoid ON]
+    Unlock --> UpdateSeed[LFSR Update & Save new Seed to EEPROM]
+    UpdateSeed --> Delay[Display 'NEXT' Code & Wait 4s]
+    Delay --> Standby
+
+    Validate -- No Match --> Error[HANDLE_FAILURE: Beep & Red LED]
+    Error --> FailCount{Failures >= 2?}
+    
+    FailCount -- No --> Standby
+    FailCount -- Yes --> Deadlock[STATE_DEADLOCK: LCD 'LOCK: XY']
+
+    Deadlock --> RecoveryInput[User enters 9's Complement]
+    RecoveryInput --> RecoveryCheck{Check Math}
+    
+    RecoveryCheck -- Correct --> ResetFail[Reset Fail Counter]
+    ResetFail --> Standby
+    
+    RecoveryCheck -- Incorrect --> Lockout[Display '?' & Delay]
+    Lockout --> Deadlock
+
+    %% Apply Styles
+    class Start,Standby startEnd;
+    class Validate,FailCount,RecoveryCheck,KeyHash decision;
+    class Deadlock,Error,Lockout danger;
+```
 
 ## ✨ Key Features
-* **Rolling Code Logic:** Uses a Linear Feedback Shift Register (LFSR) to generate a new 4-digit code after every successful entry.
-* **Entropy Injection:** Uses hardware timer `TCNT0` to inject randomness into the seed based on user input timing.
-* **EEPROM Persistence:** Saves the current code seed to non-volatile memory so the lock remembers its state after a power cut.
-* **Deadlock Recovery:** If an incorrect code is entered twice, the system enters a "Deadlock" state. Users must solve a 9's complement math challenge to reset the system.
-* **4-Bit LCD Interface:** Optimized assembly routines to drive a 16x2 LCD with minimal pin usage.
-* **Hardware Feedback:** Includes integrated buzzer alerts and LED status indicators.
+* **Rolling Code Logic:** Uses a 16-bit Linear Feedback Shift Register (LFSR) to generate a unique 4-digit code after every successful entry.
+* **Entropy Injection:** Samples hardware timer `TCNT0` during user interaction to ensure the pseudo-random sequence remains unpredictable.
+* **EEPROM Persistence:** The seed is saved to non-volatile memory; the lock maintains its security state even after power loss.
+* **9's Complement Deadlock:** A math-based challenge-response system that locks out brute-force attempts while providing a secure "backdoor" for authorized users.
+* **Optimized LCD Driver:** Direct register manipulation to drive a 16x2 LCD in 4-bit mode using custom assembly timing.
 
-## 🛠️ Hardware Components
-* **MCU:** ATmega328P (Arduino Uno form factor)
-* **Display:** LM016L (16x2 LCD)
-* **Input:** 4x3 Numeric Keypad
-* **Output:** Solenoid Lock (on PC5), Buzzer (on PD2), Error LED (on PC4)
+## 🛠️ Hardware Specification
+| Peripheral | Port/Pin | Function |
+| :--- | :--- | :--- |
+| **MCU** | ATmega328P | Main Controller (16MHz) |
+| **LCD RS** | PB4 | Register Select |
+| **LCD Enable** | PB5 | Data Latch (High-to-Low) |
+| **LCD Data** | PD4 - PD7 | 4-Bit Data Bus |
+| **Keypad Rows** | PB0 - PB3 | Row Scanning (Output) |
+| **Keypad Cols** | PC0 - PC2 | Column Detection (Input w/ Pull-up) |
+| **Solenoid** | PC5 | Lock Actuator |
+| **Buzzer** | PD2 | Audio Feedback (PWM-simulated) |
+| **Error LED** | PC4 | Visual Alarm |
 
-## 🚀 How to Run
-1. **Compilation:** Use `AVRA` or `AVR-GCC` to compile the `main.S` source code into a `.hex` file.
-2. **Simulation:** Open the provided Proteus project in the `/simulation` folder.
-3. **Flashing:** Double-click the ATmega328P in Proteus and load the `lock_firmware.hex` file.
-4. **Interaction:**
-   - Press `#` to begin entry.
-   - Enter the 4-digit code shown on the screen (initial default is `1234`).
-   - Upon success, the solenoid triggers and a **NEW** code is generated for next time.
+## 🕹️ Operation Guide
 
-## 🧠 Logic Flow: The Deadlock
-This system implements a "9's Complement" recovery.
-1. The screen displays a 2-digit challenge (e.g., `LOCK: 27`).
-2. The user must calculate `9 - digit` for both numbers.
-3. For `27`, the correct entry would be `72#`.
-4. This resets the seed without opening the door, ensuring physical security.
+### **1. Standard Entry**
+1. Press `#` to wake the system.
+2. The LCD displays the current valid code.
+3. Enter the 4 digits and press `#`.
+4. **Success:** Solenoid triggers, and a "NEXT" code is displayed for future use.
+
+### **2. Deadlock Recovery**
+If an incorrect code is entered twice, the system locks.
+1. The LCD displays `LOCK: XY` (where X and Y are random digits).
+2. Calculate: `(9 - X)` and `(9 - Y)`.
+3. Enter the two results followed by `#`.
+4. **Example:** If screen shows `LOCK: 27`, enter `72#` to unlock the keypad.
+
+## 📂 Project Structure
+* `src/main.S`: The core Assembly source code.
+* `bin/firmware.hex`: Compiled binary for hardware/Proteus.
+* `sim/circuit.pdsprj`: Proteus simulation file.
+
+---
+## 📜 License
+MIT License - Open for educational and hobbyist use.
+
+---
