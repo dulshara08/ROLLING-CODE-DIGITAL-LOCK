@@ -1,31 +1,38 @@
-# 🔐 AVR Rolling Code Lock - Advanced Assembly Security System
 
-A professional-grade, low-level security system implemented in **AVR Assembly** for the **ATmega328P**. This project moves beyond static passwords by implementing a **Rolling Code algorithm (LFSR + time randomization)** and a **9's Complement Recovery system**, making it resistant to replay attacks and brute-force attempts.
+🔐 AVR Rolling Code Lock - Advanced Assembly Security System
 
-## 📊 System Logic Flow
+A professional-grade, low-level security system implemented in AVR Assembly for the ATmega328P. This project features a Rolling Code algorithm (LFSR), a 9's Complement Recovery system, and a Hardware-Triggered Factory Reset.
 
-This flowchart illustrates the internal state machine of the firmware, from initialization to the secure deadlock recovery.
+📊 System Logic Flow
 
-```mermaid
+The updated flowchart now includes the System Wipe logic triggered by the * key.
+
+Code snippet
+
 graph TD
     %% Define Styles
     classDef startEnd fill:#2E5A88,stroke:#90CAF9,stroke-width:2px,color:#fff;
     classDef process fill:#4A3B52,stroke:#CE93D8,stroke-width:1px,color:#fff;
     classDef decision fill:#544B29,stroke:#FFF59D,stroke-width:2px,color:#fff;
-    classDef danger fill:#663333,stroke:#EF9A9A,stroke-width:2px,color:#fff;  
+    classDef danger fill:#663333,stroke:#EF9A9A,stroke-width:2px,color:#fff;
+
     Start((Power On)) --> Init[Initialize Ports, LCD & EEPROM]
     Init --> Standby[STATE_STANDBY: Display Blank]
     
-    Standby --> KeyHash{User presses #?}
-    KeyHash -- No --> Standby
-    KeyHash -- Yes --> DisplayCode[LCD: 'CODE:' & Display Current Rolling Code]
+    Standby --> KeyScan{Key Pressed?}
+    
+    KeyScan -- # --> DisplayCode[LCD: 'CODE:' & Show Current Code]
+    KeyScan -- * --> Wipe[SYSTEM_WIPE: LCD 'WIPE']
+    
+    Wipe --> EraseEEPROM[Overwriting EEPROM with 0xFF]
+    EraseEEPROM --> Signal[Green LED ON & System Halt]
 
-    DisplayCode --> Input[GET_INPUT_STRING: User enters 4 digits]
+    DisplayCode --> Input[GET_INPUT_STRING: Enter 4 digits]
     Input --> Validate{Validate Rolling Code}
 
     Validate -- Match --> Unlock[UNLOCK_SYSTEM: Solenoid ON]
-    Unlock --> UpdateSeed[LFSR Update & Save new Seed to EEPROM]
-    UpdateSeed --> Delay[Display 'NEXT' Code & Wait 4s]
+    Unlock --> UpdateSeed[LFSR Update & Save new Seed]
+    UpdateSeed --> Delay[Display 'NEXT' Code & Wait]
     Delay --> Standby
 
     Validate -- No Match --> Error[HANDLE_FAILURE: Beep & Red LED]
@@ -45,52 +52,54 @@ graph TD
 
     %% Apply Styles
     class Start,Standby startEnd;
-    class Validate,FailCount,RecoveryCheck,KeyHash decision;
-    class Deadlock,Error,Lockout danger;
-```
+    class Validate,FailCount,RecoveryCheck,KeyScan decision;
+    class Deadlock,Error,Lockout,Wipe,EraseEEPROM danger;
+✨ Key Features
 
-## ✨ Key Features
-* **Rolling Code Logic:** Uses a 16-bit Linear Feedback Shift Register (LFSR) to generate a unique 4-digit code after every successful entry.
-* **Entropy Injection:** Samples hardware timer `TCNT0` during user interaction to ensure the pseudo-random sequence remains unpredictable.
-* **EEPROM Persistence:** The seed is saved to non-volatile memory; the lock maintains its security state even after power loss.
-* **9's Complement Deadlock:** A math-based challenge-response system that locks out brute-force attempts while providing a secure "backdoor" for authorized users.
-* **Optimized LCD Driver:** Direct register manipulation to drive a 16x2 LCD in 4-bit mode using custom assembly timing.
+Rolling Code Logic: Uses a 16-bit LFSR to generate a unique 4-digit code after every successful entry.
 
-## 🛠️ Hardware Specification
-| Peripheral | Port/Pin | Function |
-| :--- | :--- | :--- |
-| **MCU** | ATmega328P | Main Controller (16MHz) |
-| **LCD RS** | PB4 | Register Select |
-| **LCD Enable** | PB5 | Data Latch (High-to-Low) |
-| **LCD Data** | PD4 - PD7 | 4-Bit Data Bus |
-| **Keypad Rows** | PB0 - PB3 | Row Scanning (Output) |
-| **Keypad Cols** | PC0 - PC2 | Column Detection (Input w/ Pull-up) |
-| **Solenoid** | PC5 | Lock Actuator |
-| **Buzzer** | PD2 | Audio Feedback (PWM-simulated) |
-| **Error LED** | PC4 | Visual Alarm |
+System Wipe (Factory Reset): Pressing the * key clears the stored seed in EEPROM, resetting the system to its default state on the next boot.
 
-## 🕹️ Operation Guide
+Entropy Injection: Samples hardware timer TCNT0 during user interaction to ensure pseudo-random unpredictability.
 
-### **1. Standard Entry**
-1. Press `#` to wake the system.
-2. The LCD displays the current valid code.
-3. Enter the 4 digits and press `#`.
-4. **Success:** Solenoid triggers, and a "NEXT" code is displayed for future use.
+EEPROM Persistence: Saves the security state even after power loss.
 
-### **2. Deadlock Recovery**
-If an incorrect code is entered twice, the system locks.
-1. The LCD displays `LOCK: XY` (where X and Y are random digits).
-2. Calculate: `(9 - X)` and `(9 - Y)`.
-3. Enter the two results followed by `#`.
-4. **Example:** If screen shows `LOCK: 27`, enter `72#` to unlock the keypad.
+9's Complement Deadlock: A secure challenge-response system to prevent brute-force attacks.
 
-## 📂 Project Structure
-* `src/main.S`: The core Assembly source code.
-* `bin/firmware.hex`: Compiled binary for hardware/Proteus.
-* `sim/circuit.pdsprj`: Proteus simulation file.
+🛠️ Hardware Specification
 
----
-## 📜 License
-MIT License - Open for educational and hobbyist use.
+Peripheral	Port/Pin	Function
+MCU	ATmega328P	Main Controller (Clock: 16MHz)
+LCD Data	PD4 - PD7	4-Bit Data Bus
+Keypad Rows	PB0 - PB3	Row Scanning (Outputs)
+Keypad Cols	PC0 - PC2	Column Detection (Inputs)
+Solenoid	PC5	Lock Actuator
+Buzzer	PD2	Audio Feedback
+Error LED	PC4	Visual Alarm Indicator
+🕹️ Operation Guide
 
----
+1. Standard Entry
+
+Press # to begin. Enter the 4-digit code shown on the screen and press # to confirm.
+
+Success: Solenoid triggers and the next code is generated.
+
+2. Deadlock Recovery
+
+If locked out (LOCK: XY), calculate the 9's Complement of both digits (e.g., if 27, enter 72#).
+
+3. System Wipe (Factory Reset)
+
+Press * while in Standby.
+
+The LCD will display "WIPE", the EEPROM will be cleared, and the Green LED will stay on.
+
+Note: You must power-cycle the device after a wipe to restart with the default seed (1234).
+
+📂 Project Structure
+
+src/main.S: The core Assembly source code.
+
+bin/firmware.hex: Compiled binary for flashing.
+
+sim/circuit.pdsprj: Proteus simulation project file.
