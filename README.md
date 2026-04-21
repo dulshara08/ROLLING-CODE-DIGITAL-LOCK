@@ -1,6 +1,6 @@
 # 🔐 AVR Rolling Code Lock - Advanced Assembly Security System
 
-A professional-grade, low-level security system implemented in **AVR Assembly** for the **ATmega328P**. This project features a **Rolling Code algorithm (LFSR)**, a **9's Complement Recovery system**, and a **Hardware-Triggered Factory Reset**.
+A professional-grade, low-level security system implemented in **AVR Assembly** for the **ATmega328P**. This project features a **Rolling Code algorithm (LFSR + time randomization)**, a **9's Complement Recovery system**, and a **Hardware-Triggered Factory Reset**.
 
 ## 📊 System Logic Flow
 
@@ -92,5 +92,4 @@ graph TD
 * `sim/circuit.pdsprj`: Proteus simulation project file.
 
 
-### **Quick Tip for your GitHub:**
-Since you added the Wipe feature, make sure to update your Proteus screenshot in the `docs/` folder if you added a specific "Reset" label or button to your keypad area!
+
