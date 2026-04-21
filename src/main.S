@@ -1,5 +1,5 @@
 ;------------------------------------------------------------------------------
-; ROLLING CODE DIGITAL LOCK - SYNTAX FIXED
+; ROLLING CODE DIGITAL LOCK 
 ;------------------------------------------------------------------------------
 
 #define __SFR_OFFSET 0
@@ -9,7 +9,7 @@
 #define temp r16
 #define key_val r17
 #define fail_count r23
-#define entropy r19        
+#define entropy r19         
 #define seed_L r24
 #define seed_H r25
 
@@ -69,12 +69,22 @@ main:
 ; ==========================================
 
 STATE_STANDBY:
-    rcall LCD_CLR       
+    rcall LCD_CLR        
 
-wait_for_hash:
+wait_for_keys:
     rcall KEYPAD_SCAN
-    cpi key_val, 35         ; DECIMAL 35 IS '#'
-    brne wait_for_hash  
+    
+    ; Check for '#' (Start Entry)
+    cpi key_val, 35        
+    breq start_code_entry
+
+    ; Check for '*' (System Wipe)
+    cpi key_val, 42
+    breq SYSTEM_WIPE
+
+    rjmp wait_for_keys
+
+start_code_entry:
     rcall WAIT_RELEASE  
 
     ldi temp, 'C'
@@ -91,12 +101,46 @@ wait_for_hash:
     rcall GET_INPUT_STRING
 
     rcall VALIDATE_ROLLING_CODE
-    cpi temp, 1                  
+    cpi temp, 1                    
     breq UNLOCK_SYSTEM
     rjmp HANDLE_FAILURE
 
 ; ==========================================
-;               OUTCOMES
+;             ERASE LOGIC
+; ==========================================
+
+SYSTEM_WIPE:
+    rcall WAIT_RELEASE
+    rcall LCD_CLR
+    
+    ; Display "WIPE"
+    ldi temp, 'W'
+    rcall DATA_4BIT
+    ldi temp, 'I'
+    rcall DATA_4BIT
+    ldi temp, 'P'
+    rcall DATA_4BIT
+    ldi temp, 'E'
+    rcall DATA_4BIT
+
+    ; Wipe EEPROM Addresses 0x10 and 0x11
+    ldi temp, 0xFF
+    ldi r18, 0x00
+    ldi r17, 0x10
+    rcall EEPROM_WRITE
+    
+    ldi temp, 0xFF
+    ldi r17, 0x11
+    rcall EEPROM_WRITE
+
+    ; Signal Success
+    sbi PORTC, 5        ; Green LED ON
+    
+halt:
+    rjmp halt           ; Freeze system
+
+; ==========================================
+;                OUTCOMES
 ; ==========================================
 
 UNLOCK_SYSTEM:
@@ -164,7 +208,7 @@ HANDLE_FAILURE:
     rjmp STATE_STANDBY
 
 ; ==========================================
-;             DEADLOCK STATE
+;              DEADLOCK STATE
 ; ==========================================
 
 STATE_DEADLOCK:
@@ -246,7 +290,7 @@ EEPROM_READ:
     rjmp EEPROM_READ
     out EEARH, r18      
     out EEARL, r17
-    sbi EECR, EERE         
+    sbi EECR, EERE          
     in temp, EEDR        
     ret
 
@@ -472,6 +516,10 @@ KEYPAD_SCAN:
     
     cbi PORTB, 3
     nop
+    sbis PINC, 0
+    ldi key_val, 42     ; DECIMAL 42 IS '*'
+    sbis PINC, 0
+    ret
     sbis PINC, 1
     ldi key_val, '0'
     sbis PINC, 1
