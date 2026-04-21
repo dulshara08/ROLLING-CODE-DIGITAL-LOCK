@@ -9,10 +9,10 @@ This flowchart illustrates the internal state machine of the firmware, from init
 ```mermaid
 graph TD
     %% Define Styles
-    classDef startEnd fill:#E1F5FE,stroke:#01579B,stroke-width:2px;  
-    classDef process fill:#F3E5F5,stroke:#7B1FA2,stroke-width:1px;   
-    classDef decision fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px; 
-    classDef danger fill:#FFEBEE,stroke:#EF5350,stroke-width:2px;    
+    classDef startEnd fill:#2E5A88,stroke:#90CAF9,stroke-width:2px,color:#fff;
+    classDef process fill:#4A3B52,stroke:#CE93D8,stroke-width:1px,color:#fff;
+    classDef decision fill:#544B29,stroke:#FFF59D,stroke-width:2px,color:#fff;
+    classDef danger fill:#663333,stroke:#EF9A9A,stroke-width:2px,color:#fff;  
     Start((Power On)) --> Init[Initialize Ports, LCD & EEPROM]
     Init --> Standby[STATE_STANDBY: Display Blank]
     
