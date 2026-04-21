@@ -1,9 +1,3 @@
-
-
-[file-tag: code-generated-file-1-1776765922760262547]
-
----
-
 # 🔐 AVR Rolling Code Lock - Advanced Assembly Security System
 
 A professional-grade, low-level security system implemented in **AVR Assembly** for the **ATmega328P**. This project features a **Rolling Code algorithm (LFSR)**, a **9's Complement Recovery system**, and a **Hardware-Triggered Factory Reset**.
