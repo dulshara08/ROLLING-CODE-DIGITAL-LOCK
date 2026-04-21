@@ -75,11 +75,11 @@ graph TD
 ## 🕹️ Operation Guide
 
 ### **1. Standard Entry**
-* Press `#` to begin. Enter the 4-digit code shown on the screen and press `#` to confirm.
-* **Success:** Solenoid triggers and the next code is generated.
+* Press `#` to begin. Enter the 4-digit passcode.
+* **Success:** Solenoid triggers and the next code is generated and shown in the screen for 1-2 seconds.
 
 ### **2. Deadlock Recovery**
-* If locked out (`LOCK: XY`), calculate the **9's Complement** of both digits (e.g., if `27`, enter `72#`).
+* If locked out (`LOCK: XY`), calculate the **9's Complement** of both digits displayed in the screen and then press '#'(e.g., if `27`, enter `72#`).These two digits also generated based on time randomization.
 
 ### **3. System Wipe (Factory Reset)**
 * Press `*` while in Standby. 
