@@ -86,10 +86,6 @@ graph TD
 * The LCD will display **"WIPE"**, the EEPROM will be cleared, and the Green LED will stay on.
 * **Note:** You must power-cycle the device after a wipe to restart with the default seed (`1234`).
 
-## 📂 Project Structure
-* `src/main.S`: The core Assembly source code.
-* `bin/firmware.hex`: Compiled binary for flashing.
-* `sim/circuit.pdsprj`: Proteus simulation project file.
 
 
 
