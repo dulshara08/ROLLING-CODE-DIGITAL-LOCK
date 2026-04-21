@@ -6,8 +6,9 @@ A rolling code lock system improves security by changing the valid unlock code a
 
 ## Project Status
 
-This project is currently in an early stage.  
-At the moment, the repository contains basic project scaffolding and documentation.
+This repository now includes the final AVR assembly implementation of the lock system in:
+
+- `main.asm`
 
 ## Goals
 
@@ -15,15 +16,21 @@ At the moment, the repository contains basic project scaffolding and documentati
 - Reduce risk from captured or repeated unlock signals
 - Provide a clear and maintainable implementation
 
-## Planned Components
+## Implemented Components
 
-- Code generation logic
-- Validation/authentication logic
-- Input interface (e.g., keypad, serial, app, or API)
-- Lock control output module
-- Logging/debug support
+- Rolling code validation (`VALIDATE_ROLLING_CODE`)
+- LFSR-based next-code update (`LFSR_UPDATE`)
+- EEPROM seed persistence (`EEPROM_READ` / `EEPROM_WRITE`)
+- Keypad scanning (`KEYPAD_SCAN`)
+- LCD output in 4-bit mode
+- Error handling, buzzer alert, and deadlock state
 
-## Getting Started
+## Repository Structure
+
+- `main.asm` — complete AVR assembly source for the digital lock
+- `README.md` — project documentation
+
+## Build and Flash (AVR Toolchain)
 
 1. Clone the repository:
    ```bash
@@ -33,7 +40,17 @@ At the moment, the repository contains basic project scaffolding and documentati
    ```bash
    cd ROLLING-CODE-DIGITAL-LOCK
    ```
-3. Follow upcoming setup and run instructions as implementation files are added.
+3. Assemble and link (example for ATmega32):
+   ```bash
+   avr-gcc -mmcu=atmega32 -x assembler-with-cpp -o lock.elf main.asm
+   avr-objcopy -O ihex lock.elf lock.hex
+   ```
+4. Flash to MCU (example with USBasp):
+   ```bash
+   avrdude -c usbasp -p m32 -U flash:w:lock.hex:i
+   ```
+
+> Update `-mmcu` / `-p` values to match your exact AVR chip.
 
 ## Contributing
 
