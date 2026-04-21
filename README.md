@@ -9,7 +9,7 @@ A high-security digital lock system written in **AVR Assembly** for the ATmega32
 * **4-Bit LCD Interface:** Optimized assembly routines to drive a 16x2 LCD with minimal pin usage.
 * **Hardware Feedback:** Includes integrated buzzer alerts and LED status indicators.
 
-## 🛠️ Hardware Components (Proteus)
+## 🛠️ Hardware Components
 * **MCU:** ATmega328P (Arduino Uno form factor)
 * **Display:** LM016L (16x2 LCD)
 * **Input:** 4x3 Numeric Keypad
