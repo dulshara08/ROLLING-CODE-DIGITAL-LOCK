@@ -1,8 +1,6 @@
 ;------------------------------------------------------------------------------
 ; config.inc - SHARED DEFINITIONS
 ;------------------------------------------------------------------------------
-; This file centralizes register and port definitions so they don't need
-; to be repeated in every module. It acts like a header file in C.
 
 #define __SFR_OFFSET 0      ; Treat Special Function Registers as standard memory addresses
 #include <avr/io.h>         ; Standard AVR I/O definitions (PORTB, DDRC, etc.)
