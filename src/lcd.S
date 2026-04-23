@@ -40,7 +40,7 @@ LCD_INIT_SEQUENCE:
     rcall PULSE_EN
     rcall DELAY_LONG
     
-    ; Now we can send full 8-bit commands (sent as two 4-bit nibbles)
+    ;Sending full 8-bit commands (sent as two 4-bit nibbles)
     ldi temp, 0x28          ; Function Set: 4-bit mode, 2 lines, 5x8 font
     rcall CMD_4BIT
     ldi temp, 0x08          ; Display OFF
@@ -55,7 +55,7 @@ LCD_INIT_SEQUENCE:
 LCD_CLR:
     ldi temp, 0x01          ; Clear display command
     rcall CMD_4BIT
-    rcall DELAY_LONG        ; Clearing takes longer than normal instructions
+    rcall DELAY_LONG        ; 
     ret
 
 PULSE_EN:
