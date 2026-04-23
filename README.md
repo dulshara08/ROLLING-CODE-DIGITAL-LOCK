@@ -61,14 +61,19 @@ graph TD
 * **EEPROM Persistence:** Saves the security state even after power loss.
 * **9's Complement Deadlock:** A secure challenge-response system to prevent brute-force attacks.
 
-## 🛠️ Technical Specification
+🛠️ Technical Specifications
 
-Core: 8-bit AVR RISC Architecture (ATmega328P).
-Clock Speed: 16 MHz (External Crystal or Internal RC).
-Language: Pure AVR Assembly (No Arduino abstraction layers).
-Algorithm: 16-bit Linear Feedback Shift Register (LFSR) for pseudo-random rolling code generation.
-Logic Supply: 5V DC (Stable regulated supply for MCU and LCD).
-Actuator Supply: 9V - 12V DC (Independent supply for solenoid to prevent EMI).
+    Core: 8-bit AVR RISC Architecture (ATmega328P).
+
+    Clock Speed: 16 MHz (External Crystal or Internal RC).
+
+    Language: Pure AVR Assembly (No Arduino abstraction layers).
+
+    Algorithm: 16-bit Linear Feedback Shift Register (LFSR) for pseudo-random rolling code generation.
+
+    Logic Supply: 5V DC (Stable regulated supply for MCU and LCD).
+
+    Actuator Supply: 9V - 12V DC (Independent supply for solenoid to prevent EMI).
 
 | Peripheral | Port/Pin | Function |
 | :--- | :--- | :--- |
