@@ -6,7 +6,7 @@
 #include <avr/io.h>         ; Standard AVR I/O definitions (PORTB, DDRC, etc.)
 
 ; --- GLOBAL REGISTER ALLOCATIONS ---
-#define temp r16            ; General-purpose working register for immediate math/logic
+#define temp r16            ; General-purpose working register used for immediate math/logic
 #define key_val r17         ; Stores the current ASCII character read from the keypad
 #define fail_count r23      ; Tracks consecutive wrong code entries (triggers deadlock at 2)
 #define entropy r19         ; Accumulates random timing data for the LFSR seed
