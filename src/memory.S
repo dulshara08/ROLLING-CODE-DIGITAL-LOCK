@@ -1,6 +1,7 @@
 ;------------------------------------------------------------------------------
-; utils.S - DELAYS, BEEP, AND EEPROM
+; utilis.S - DELAYS, BEEP, AND EEPROM
 ;------------------------------------------------------------------------------
+; Contains hardware delays, the piezo buzzer routine, and non-volatile memory logic.
 
 #include "config.inc"
 
@@ -9,44 +10,51 @@
 .global BEEP_ONCE, DELAY_MS, DELAY_LONG, DELAY_2SEC
 
 SAVE_SEED_TO_EEPROM:
-    ldi r18, 0x00
-    ldi r17, 0x10
-    mov temp, seed_H
+    ; Saves the 16-bit seed into EEPROM at Addresses 0x0010 and 0x0011
+    ldi r18, 0x00           ; EEPROM Address High Byte
+    ldi r17, 0x10           ; EEPROM Address Low Byte (0x10)
+    mov temp, seed_H        ; Data to save
     rcall EEPROM_WRITE
-    ldi r17, 0x11
+    
+    ldi r17, 0x11           ; Next address (0x11)
     mov temp, seed_L
     rcall EEPROM_WRITE
     ret
 
 EEPROM_READ:
-    sbic EECR, EEPE       
-    rjmp EEPROM_READ
-    out EEARH, r18      
-    out EEARL, r17
-    sbi EECR, EERE          
-    in temp, EEDR        
+    sbic EECR, EEPE         ; Check EEPROM Programming Enable bit
+    rjmp EEPROM_READ        ; If busy, loop until hardware is free
+    out EEARH, r18          ; Set Address High
+    out EEARL, r17          ; Set Address Low
+    sbi EECR, EERE          ; Trigger Read Enable
+    in temp, EEDR           ; Read data from Data Register into 'temp'
     ret
 
 EEPROM_WRITE:
-    sbic EECR, EEPE       
+    sbic EECR, EEPE         ; Wait for completion of previous write
     rjmp EEPROM_WRITE
-    out EEARH, r18      
-    out EEARL, r17
-    out EEDR, temp       
-    sbi EECR, EEMPE         
-    sbi EECR, EEPE         
+    out EEARH, r18          ; Set Address High
+    out EEARL, r17          ; Set Address Low
+    out EEDR, temp          ; Put data into Data Register
+    sbi EECR, EEMPE         ; Set Master Write Enable (Hardware security feature)
+    sbi EECR, EEPE          ; Start write within 4 clock cycles
     ret
 
 BEEP_ONCE:
-    ldi r22, 200        
+    ; Generates a square wave on PORTD.2 for a buzzer
+    ldi r22, 200            ; Number of wave cycles to generate
 beep_wave:
-    sbi PORTD, 2        
-    rcall DELAY_MS      
-    cbi PORTD, 2        
-    rcall DELAY_MS      
+    sbi PORTD, 2            ; Speaker HIGH
+    rcall DELAY_MS          
+    cbi PORTD, 2            ; Speaker LOW
+    rcall DELAY_MS          
     dec r22
     brne beep_wave
     ret
+
+; --- SOFTWARE DELAYS ---
+; Nested loop delays consuming instruction cycles to create pauses.
+; Assumes ~1MHz default clock. 
 
 DELAY_MS:
     ldi r20, 20
