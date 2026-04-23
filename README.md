@@ -66,8 +66,8 @@ graph TD
 * **Core:** 8-bit AVR RISC Architecture (**ATmega328P**).
 * **Clock Speed:** 16 MHz 
 * **Language:** AVR Assembly 
-* **Logic Supply:** 5V DC (Stable regulated supply for MCU and LCD).
-* **Actuator Supply:** 9V - 12V DC (Independent supply for solenoid to prevent EMI).
+* **Logic Supply:** 5V DC 
+* **Actuator Supply:** 12V DC 
 
 | Peripheral | Port/Pin | Function |
 | :--- | :--- | :--- |
