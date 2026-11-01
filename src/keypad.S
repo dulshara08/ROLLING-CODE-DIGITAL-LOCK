@@ -17,7 +17,6 @@ WAIT_FOR_KEY_ACTIVE:
     breq WAIT_FOR_KEY_ACTIVE ; Block until a key is physically held down
     
     ; Accumulate randomness from Hardware Timer 0
-    ; The unpredictable human reaction time randomizes the LFSR
     in temp, TCNT0
     eor entropy, temp
     ret

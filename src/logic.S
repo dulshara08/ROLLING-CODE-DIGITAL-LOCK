@@ -13,7 +13,7 @@ LFSR_UPDATE:
     ; 16-bit Linear Feedback Shift Register (Galois Configuration)
     lsl seed_L              ; Logical Shift Left the lower byte
     rol seed_H              ; Rotate Left the upper byte (brings in carry from seed_L)
-    brcc lfsr_done          ; If carry bit is 0, we are done
+    brcc lfsr_done          
     ldi temp, 0xB4          ; If carry bit is 1, XOR with the polynomial tap (0xB4)
     eor seed_L, temp
 lfsr_done:

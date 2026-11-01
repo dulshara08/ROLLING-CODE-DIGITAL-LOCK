@@ -61,10 +61,17 @@ graph TD
 * **EEPROM Persistence:** Saves the security state even after power loss.
 * **9's Complement Deadlock:** A secure challenge-response system to prevent brute-force attacks.
 
-## 🛠️ Hardware Specification
+### 🛠️ Technical Specifications
+
+* **Core:** 8-bit AVR RISC Architecture (**ATmega328P**).
+* **Clock Speed:** 16 MHz 
+* **Language:** AVR Assembly 
+* **Logic Supply:** 5V DC 
+* **Actuator Supply:** 12V DC 
+
 | Peripheral | Port/Pin | Function |
 | :--- | :--- | :--- |
-| **MCU** | ATmega328P | Main Controller (Clock: 16MHz) |
+| **MCU** | ATmega328P | Main Controller |
 | **LCD Data** | PD4 - PD7 | 4-Bit Data Bus |
 | **Keypad Rows** | PB0 - PB3 | Row Scanning (Outputs) |
 | **Keypad Cols** | PC0 - PC2 | Column Detection (Inputs) |
